@@ -1,0 +1,42 @@
+{
+    "model_name": "50_Startups_Multiple_Linear_Regression",
+    "methodology": "CRISP-DM",
+    "library": "scikit-learn",
+    "sklearn_version": "1.9.1",
+    "features": {
+        "numeric": [
+            "R&D Spend",
+            "Administration",
+            "Marketing Spend"
+        ],
+        "categorical": [
+            "State"
+        ],
+        "target": "Profit"
+    },
+    "intercept": 54028.03959405866,
+    "coefficients": {
+        "State_Florida": 938.7930061484041,
+        "State_New York": 6.987759966912739,
+        "R&D Spend": 0.8056300637169751,
+        "Administration": -0.06878788228041122,
+        "Marketing Spend": 0.029855442922038122
+    },
+    "metrics_test": {
+        "Model": "Multiple Linear Regression (Full)",
+        "Train R2": "0.9537",
+        "Test R2": "0.8987",
+        "Test Adj R2": "0.7721",
+        "Test RMSE ($)": "9,055.96",
+        "Test MAE ($)": "6,961.48",
+        "Test MAPE (%)": "10.28%"
+    },
+    "cv_performance": {
+        "cv_r2_mean": 0.9340039511035851,
+        "cv_r2_std": 0.032301456133243305,
+        "cv_rmse_mean": 9550.676105681143,
+        "cv_rmse_std": 2936.1227098124828,
+        "cv_mae_mean": 7425.881525345685,
+        "cv_mae_std": 1768.2967144370646
+    }
+}

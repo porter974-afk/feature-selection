@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>50 Startups 獲利預測與 CRISP-DM 機器學習決策平台 | Scikit-Learn</title>
+  <meta name="description" content="基於 CRISP-DM 流程與 Scikit-Learn 多元線性迴歸（Multiple Linear Regression）演算法，為 50 家新創公司提供高精度的獲利預測、部門 ROI 歸因分析與統計假設檢驗。">
+  <meta name="keywords" content="50 Startups, 多元線性迴歸, Multiple Linear Regression, CRISP-DM, Scikit-learn, 機器學習, 獲利預測, ROI 分析">
+  <meta name="author" content="Antigravity ML Team">
+  <meta property="og:title" content="50 Startups 獲利預測與 CRISP-DM 機器學習決策平台">
+  <meta property="og:description" content="即時互動式新創公司投資回報預測器，搭配完整的 CRISP-DM 6 大階段深入解析與高階診斷圖表。">
+  <meta property="og:type" content="website">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Chart.js CDN for responsive modern charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar" id="announcement-banner">
+    <div class="announcement-content">
+      <span class="badge-pulse"></span>
+      <span>🚀 <strong>CRISP-DM 完整流程認證</strong>：Scikit-Learn 1.9.1 引擎已就緒，測試集判定係數 $R^2 = 91.68\%$</span>
+      <a href="#deploy-section" class="announcement-link">🌐 點我看網頁發布上線指引 →</a>
+    </div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar" id="main-navbar">
+    <div class="nav-container">
+      <div class="brand-logo">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">StartupPulse<span class="brand-accent">.AI</span></span>
+          <span class="brand-sub">CRISP-DM ML Platform</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#simulator-section" class="nav-link active" id="nav-sim">獲利模擬器</a>
+        <a href="#crisp-section" class="nav-link" id="nav-crisp">CRISP-DM 流程</a>
+        <a href="#dataset-section" class="nav-link" id="nav-data">50 家數據庫</a>
+        <a href="#diagnostics-section" class="nav-link" id="nav-diag">模型診斷</a>
+        <a href="#deploy-section" class="nav-link nav-btn-deploy" id="nav-dep">一鍵發布上線</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="theme-toggle-btn" class="theme-toggle" aria-label="切換深色/淺色主題" title="切換深色/淺色模式">
+          <span class="toggle-icon sun-icon">☀️</span>
+          <span class="toggle-icon moon-icon">🌙</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="hero-banner">
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+    <div class="hero-container">
+      <div class="hero-badge">
+        <span class="sparkle">✨</span>
+        <span>企業級機器學習決策系統 • 50 Startups 經典題目全解析</span>
+      </div>
+      <h1 class="hero-title">
+        新創公司獲利預測與<br>
+        <span class="gradient-text">CRISP-DM 機器學習</span> 決策平台
+      </h1>
+      <p class="hero-subtitle">
+        透過嚴謹的資料採礦方法論（CRISP-DM）與 Scikit-Learn 多元線性迴歸，精確拆解研發、行政與行銷資金投入對企業淨利潤的邊際回報率（ROI）。
+      </p>
+
+      <!-- Key Metrics Highlights -->
+      <div class="metrics-grid">
+        <div class="metric-card glass-card">
+          <div class="metric-label">訓練集擬合度 (Train R²)</div>
+          <div class="metric-value">95.37%</div>
+          <div class="metric-desc">高解釋力且無過度擬合</div>
+        </div>
+        <div class="metric-card glass-card highlight-metric">
+          <div class="metric-label">精簡模型測試 (Test R²)</div>
+          <div class="metric-value">91.68%</div>
+          <div class="metric-desc">未見資料集泛化檢驗</div>
+        </div>
+        <div class="metric-card glass-card">
+          <div class="metric-label">研發邊際報酬 (R&D ROI)</div>
+          <div class="metric-value">+$0.81</div>
+          <div class="metric-desc">每投入 $1 預期回報 (p < 0.001)</div>
+        </div>
+        <div class="metric-card glass-card">
+          <div class="metric-label">殘差常態檢定 (Shapiro)</div>
+          <div class="metric-value">p = 0.836</div>
+          <div class="metric-desc">高斯-馬可夫古典假設成立</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 1: Live Interactive Simulator -->
+  <section class="section-container" id="simulator-section">
+    <div class="section-header">
+      <div class="section-tag">Phase 4 & 6 • 即時推論</div>
+      <h2 class="section-title">新創獲利即時預測模擬器</h2>
+      <p class="section-desc">調整各項營運資金投入與營運州別，即時計算預期淨利潤、資金佔比與模型回歸歸因拆解。</p>
+    </div>
+
+    <!-- Quick Presets -->
+    <div class="presets-bar">
+      <span class="preset-label">快速預設情境：</span>
+      <button class="preset-btn active" data-preset="deeptech" id="btn-preset-deeptech">🚀 研發核心技術型</button>
+      <button class="preset-btn" data-preset="scaleup" id="btn-preset-scaleup">📈 重度行銷擴張型</button>
+      <button class="preset-btn" data-preset="bootstrap" id="btn-preset-bootstrap">💡 精實獲利型 (Lean)</button>
+      <button class="preset-btn" data-preset="corporate" id="btn-preset-corporate">🏢 保守管理型 (Enterprise)</button>
+    </div>
+
+    <div class="simulator-layout">
+      <!-- Input Controls Panel -->
+      <div class="controls-panel glass-card">
+        <h3 class="panel-title">
+          <span>營運支出與地理設定</span>
+          <span class="model-badge">多元迴歸方程式</span>
+        </h3>
+
+        <!-- Control: R&D Spend -->
+        <div class="control-group">
+          <div class="control-header">
+            <label for="rd-input" class="control-label">
+              <span class="indicator-dot dot-rd"></span>
+              研發支出 (R&D Spend)
+            </label>
+            <div class="input-currency-wrapper">
+              <span class="currency-symbol">$</span>
+              <input type="number" id="rd-input" min="0" max="250000" step="1000" value="130000" class="numeric-input">
+            </div>
+          </div>
+          <input type="range" id="rd-slider" min="0" max="250000" step="1000" value="130000" class="styled-slider slider-rd">
+          <div class="slider-ticks">
+            <span>$0</span>
+            <span>$125,000</span>
+            <span>$250,000</span>
+          </div>
+        </div>
+
+        <!-- Control: Administration -->
+        <div class="control-group">
+          <div class="control-header">
+            <label for="admin-input" class="control-label">
+              <span class="indicator-dot dot-admin"></span>
+              行政支出 (Administration)
+            </label>
+            <div class="input-currency-wrapper">
+              <span class="currency-symbol">$</span>
+              <input type="number" id="admin-input" min="0" max="250000" step="1000" value="115000" class="numeric-input">
+            </div>
+          </div>
+          <input type="range" id="admin-slider" min="0" max="250000" step="1000" value="115000" class="styled-slider slider-admin">
+          <div class="slider-ticks">
+            <span>$0</span>
+            <span>$125,000</span>
+            <span>$250,000</span>
+          </div>
+        </div>
+
+        <!-- Control: Marketing Spend -->
+        <div class="control-group">
+          <div class="control-header">
+            <label for="mkt-input" class="control-label">
+              <span class="indicator-dot dot-mkt"></span>
+              行銷推廣支出 (Marketing)
+            </label>
+            <div class="input-currency-wrapper">
+              <span class="currency-symbol">$</span>
+              <input type="number" id="mkt-input" min="0" max="500000" step="2000" value="280000" class="numeric-input">
+            </div>
+          </div>
+          <input type="range" id="mkt-slider" min="0" max="500000" step="2000" value="280000" class="styled-slider slider-mkt">
+          <div class="slider-ticks">
+            <span>$0</span>
+            <span>$250,000</span>
+            <span>$500,000</span>
+          </div>
+        </div>
+
+        <!-- Control: State Selection -->
+        <div class="control-group">
+          <label class="control-label mb-2">
+            <span class="indicator-dot dot-state"></span>
+            公司註冊/營運州別 (State)
+          </label>
+          <div class="state-selector" id="state-selector-group">
+            <label class="state-option active" data-state="California">
+              <input type="radio" name="state" value="California" checked>
+              <span class="state-name">加利福尼亞州 (CA)</span>
+              <span class="state-tag">基準對照組</span>
+            </label>
+            <label class="state-option" data-state="New York">
+              <input type="radio" name="state" value="New York">
+              <span class="state-name">紐約州 (NY)</span>
+              <span class="state-tag">+$6.99</span>
+            </label>
+            <label class="state-option" data-state="Florida">
+              <input type="radio" name="state" value="Florida">
+              <span class="state-name">佛羅里達州 (FL)</span>
+              <span class="state-tag">+$938.79</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Reset & Randomize Buttons -->
+        <div class="button-row">
+          <button id="btn-reset" class="btn btn-secondary">重設預設值</button>
+          <button id="btn-randomize" class="btn btn-secondary">隨機生成情境</button>
+        </div>
+      </div>
+
+      <!-- Prediction Output & Analytics Panel -->
+      <div class="output-panel glass-card">
+        <div class="result-highlight-card">
+          <div class="result-badge">✨ 機器學習預測獲利</div>
+          <div class="predicted-amount" id="predicted-profit-val">$159,191.02</div>
+          <div class="prediction-stats-row">
+            <div class="sub-stat">
+              <span class="sub-label">總支出投入</span>
+              <span class="sub-val" id="total-spend-val">$525,000.00</span>
+            </div>
+            <div class="sub-stat">
+              <span class="sub-label">利潤投報率 (ROI)</span>
+              <span class="sub-val text-emerald" id="predicted-roi-val">+30.3%</span>
+            </div>
+            <div class="sub-stat">
+              <span class="sub-label">預測區間信賴度</span>
+              <span class="sub-val text-indigo">95% CI</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attribution Breakdown List -->
+        <div class="attribution-box">
+          <div class="attribution-title">線性模型邊際貢獻拆解 (Linear Attribution)</div>
+          <div class="attr-items">
+            <div class="attr-item">
+              <span class="attr-name">基準截距 (Base Intercept)</span>
+              <span class="attr-contrib text-muted" id="attr-intercept">+$54,028.04</span>
+            </div>
+            <div class="attr-item">
+              <span class="attr-name">研發效益 (<span id="attr-rd-formula">+0.8056 × $130,000</span>)</span>
+              <span class="attr-contrib text-emerald" id="attr-rd-contrib">+$104,731.91</span>
+            </div>
+            <div class="attr-item">
+              <span class="attr-name">行政損耗 (<span id="attr-admin-formula">-0.0688 × $115,000</span>)</span>
+              <span class="attr-contrib text-rose" id="attr-admin-contrib">-$7,910.61</span>
+            </div>
+            <div class="attr-item">
+              <span class="attr-name">行銷拉抬 (<span id="attr-mkt-formula">+0.0299 × $280,000</span>)</span>
+              <span class="attr-contrib text-blue" id="attr-mkt-contrib">+$8,359.52</span>
+            </div>
+            <div class="attr-item">
+              <span class="attr-name">州別效應 (<span id="attr-state-formula">California Dummy = 0</span>)</span>
+              <span class="attr-contrib text-purple" id="attr-state-contrib">+$0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Analytics Grid: Spending Share & Waterfall -->
+        <div class="chart-row">
+          <div class="chart-box">
+            <div class="chart-header-sm">資金預算分配 (Spending)</div>
+            <div class="canvas-container">
+              <canvas id="budgetDonutChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-box">
+            <div class="chart-header-sm">利潤正負貢獻比重 (Impact)</div>
+            <div class="canvas-container">
+              <canvas id="impactBarChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: CRISP-DM 6-Phase Deep Dive Explorer -->
+  <section class="section-container" id="crisp-section">
+    <div class="section-header">
+      <div class="section-tag">Methodology • 跨行業資料採礦標準流程</div>
+      <h2 class="section-title">CRISP-DM 六大階段深度解析</h2>
+      <p class="section-desc">從商業命題定錨、探索性資料分析、特徵工程避免虛擬變數陷阱，到嚴格的高斯-馬可夫殘差診斷與部署。</p>
+    </div>
+
+    <!-- 6 Phase Navigation Pills -->
+    <div class="crisp-nav-pills" id="crisp-pills">
+      <button class="crisp-pill active" data-phase="1">
+        <span class="pill-num">1</span>
+        <span class="pill-text">商業理解</span>
+      </button>
+      <button class="crisp-pill" data-phase="2">
+        <span class="pill-num">2</span>
+        <span class="pill-text">資料理解</span>
+      </button>
+      <button class="crisp-pill" data-phase="3">
+        <span class="pill-num">3</span>
+        <span class="pill-text">資料準備</span>
+      </button>
+      <button class="crisp-pill" data-phase="4">
+        <span class="pill-num">4</span>
+        <span class="pill-text">建立模型</span>
+      </button>
+      <button class="crisp-pill" data-phase="5">
+        <span class="pill-num">5</span>
+        <span class="pill-text">模型評估</span>
+      </button>
+      <button class="crisp-pill" data-phase="6">
+        <span class="pill-num">6</span>
+        <span class="pill-text">成果部署</span>
+      </button>
+    </div>
+
+    <!-- Phase Content Cards -->
+    <div class="crisp-content-display glass-card" id="crisp-card">
+      <!-- Dynamic injection via app.js -->
+    </div>
+  </section>
+
+  <!-- Section 3: 50 Startups Dataset Interactive Explorer -->
+  <section class="section-container" id="dataset-section">
+    <div class="section-header">
+      <div class="section-tag">Dataset • 50 家新創歷史數據</div>
+      <h2 class="section-title">50 家歷史新創真實數據與殘差比對</h2>
+      <p class="section-desc">即時檢視 50 家新創公司的實際獲利與機器學習模型的預測值，點擊任一列可立即帶入上方模擬器進行驗證。</p>
+    </div>
+
+    <div class="table-controls-bar glass-card">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="dataset-search" placeholder="搜尋州別 (California, New York, Florida) 或金額..." class="search-input">
+      </div>
+      <div class="filter-group">
+        <label for="state-filter" class="filter-label">篩選州別：</label>
+        <select id="state-filter" class="styled-select">
+          <option value="all">全部州別 (50 家)</option>
+          <option value="California">加利福尼亞州 (17 家)</option>
+          <option value="New York">紐約州 (17 家)</option>
+          <option value="Florida">佛羅里達州 (16 家)</option>
+        </select>
+      </div>
+      <div class="table-summary-tag" id="table-record-count">顯示 50 / 50 筆紀錄</div>
+    </div>
+
+    <div class="table-responsive glass-card">
+      <table class="data-table" id="startups-table">
+        <thead>
+          <tr>
+            <th>編號</th>
+            <th>研發支出 (R&D)</th>
+            <th>行政支出 (Admin)</th>
+            <th>行銷支出 (Marketing)</th>
+            <th>營運州別 (State)</th>
+            <th>實際利潤 (Actual)</th>
+            <th>模型預測 (Predicted)</th>
+            <th>殘差誤差 (Residual)</th>
+            <th>動作</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Injected via app.js -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 4: Machine Learning Diagnostics & Charts -->
+  <section class="section-container" id="diagnostics-section">
+    <div class="section-header">
+      <div class="section-tag">Econometrics • 模型統計假設檢驗</div>
+      <h2 class="section-title">多元線性迴歸統計檢驗與診斷圖譜</h2>
+      <p class="section-desc">完整的古典線性迴歸模型（Gauss-Markov）假設驗證，包含常態性、同質變異數與共線性檢定。</p>
+    </div>
+
+    <div class="diagnostics-grid">
+      <!-- Card 0: Sequential Feature Selection Curve (from user's screenshot) -->
+      <div class="diag-card glass-card" style="grid-column: 1 / -1;">
+        <div class="diag-card-header">
+          <div class="diag-title">🌟 前向特徵選取分析 (Sequential Feature Selection: RMSE vs R-squared)</div>
+          <span class="diag-tag" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700;">最佳特徵數 k = 2</span>
+        </div>
+        <div class="diag-img-wrapper" style="background: #fff; padding: 1.5rem;">
+          <img src="outputs/feature_selection_curve.png" alt="特徵數量與 RMSE、R-squared 曲線圖" class="zoomable-img" loading="lazy" style="max-height: 420px;">
+        </div>
+        <div class="diag-card-footer">
+          <p><strong>📊 特徵選取核心結論：</strong> 依據上方曲線，當特徵數為 <strong>k = 2</strong> 時，測試集均方根誤差（RMSE）降至<strong>最低點 $8,198.80</strong>，且判定係數（$R^2$）達到<strong>最高峰 0.9474 (94.74%)</strong>。
+          <br>選出的最優特徵組合為：<code>['R&D Spend', 'Marketing Spend']</code>。
+          後續加入之第 3（State_New York）、第 4（State_Florida）與第 5 個特徵（Administration）由於統計上不顯著，反而引入多餘雜訊與共線性，使 RMSE 大幅反彈增加至 $9,137.99。</p>
+        </div>
+      </div>
+
+      <!-- Card 1: Actual vs Predicted & Residuals -->
+      <div class="diag-card glass-card">
+        <div class="diag-card-header">
+          <div class="diag-title">1. 殘差分佈與同質變異數檢驗 (Residual Diagnostics)</div>
+          <span class="diag-tag">Gauss-Markov 假設</span>
+        </div>
+        <div class="diag-img-wrapper">
+          <img src="outputs/residuals_diagnostics.png" alt="殘差診斷 4 宮格圖" class="zoomable-img" loading="lazy">
+        </div>
+        <div class="diag-card-footer">
+          <p>4 大關鍵檢定：(1) 實際 vs 預測緊密貼合；(2) 殘差均勻分佈在 0 軸無漏斗效應；(3) 殘差直方圖符合鐘形常態；(4) Q-Q Plot 點位均緊貼理論紅線。</p>
+        </div>
+      </div>
+
+      <!-- Card 2: Pearson Correlation Heatmap -->
+      <div class="diag-card glass-card">
+        <div class="diag-card-header">
+          <div class="diag-title">2. 皮爾森相關係數熱力圖 (Correlation Heatmap)</div>
+          <span class="diag-tag">多重共線性分析</span>
+        </div>
+        <div class="diag-img-wrapper">
+          <img src="outputs/correlation_heatmap.png" alt="相關係數矩陣熱力圖" class="zoomable-img" loading="lazy">
+        </div>
+        <div class="diag-card-footer">
+          <p>研發支出與利潤相關性高達 <strong>0.973</strong>；行銷支出與研發支出相關性為 <strong>0.724</strong>。透過 VIF 檢驗（均 < 2.5）確認無嚴重多重共線性干擾。</p>
+        </div>
+      </div>
+
+      <!-- Card 3: Model Coefficients -->
+      <div class="diag-card glass-card">
+        <div class="diag-card-header">
+          <div class="diag-title">3. 模型係數重要性 (Model Coefficients)</div>
+          <span class="diag-tag">邊際效應分析</span>
+        </div>
+        <div class="diag-img-wrapper">
+          <img src="outputs/model_coefficients.png" alt="各特徵係數長條圖" class="zoomable-img" loading="lazy">
+        </div>
+        <div class="diag-card-footer">
+          <p>研發每多 $1，利潤增加 $0.81；行政支出微幅為負 (-$0.069, p > 0.60)；行銷提供穩定助攻 (+$0.030)；州別間並無顯著利潤差距。</p>
+        </div>
+      </div>
+
+      <!-- Card 4: State Distribution Boxplot -->
+      <div class="diag-card glass-card">
+        <div class="diag-card-header">
+          <div class="diag-title">4. 各州新創利潤箱形圖 (State Profit Distribution)</div>
+          <span class="diag-tag">地理因素驗證</span>
+        </div>
+        <div class="diag-img-wrapper">
+          <img src="outputs/state_profit_distribution.png" alt="各州獲利分佈箱形圖" class="zoomable-img" loading="lazy">
+        </div>
+        <div class="diag-card-footer">
+          <p>California、Florida、New York 三個州的利潤中位數均落在 9.7 萬至 11 萬美元之間，ANOVA 檢定顯示地理位置非獲利關鍵差異源。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Web Deployment Guide & One-Click Publishing -->
+  <section class="section-container" id="deploy-section">
+    <div class="section-header">
+      <div class="section-tag">Deployment • 雲端發布與上線指引</div>
+      <h2 class="section-title">如何將此網頁免費發布在網路上？</h2>
+      <p class="section-desc">本網頁已具備純前端獨立推論架構與完整檔案，提供 3 種最熱門、永久免費的全球發布方案。</p>
+    </div>
+
+    <div class="deploy-grid">
+      <!-- Option 1: GitHub Pages -->
+      <div class="deploy-card glass-card">
+        <div class="deploy-card-header">
+          <div class="deploy-icon-badge">🐙</div>
+          <div>
+            <h3 class="deploy-card-title">方案 1：GitHub Pages (推薦 • 永久免費)</h3>
+            <span class="deploy-card-sub">適合個人作品集、報告展示與開源託管</span>
+          </div>
+        </div>
+        <ol class="deploy-steps">
+          <li>在 GitHub 上新建一個名為 <code>50-startup-ml</code> 的公開倉庫 (Public Repo)。</li>
+          <li>在本地終端機執行以下指令推送專案代碼：
+            <pre><code>git init
+git add .
+git commit -m "feat: 50 Startups CRISP-DM Web App"
+git branch -M main
+git remote add origin https://github.com/您的帳號/50-startup-ml.git
+git push -u origin main</code></pre>
+          </li>
+          <li>進入 GitHub Repo 的 <strong>Settings</strong> > <strong>Pages</strong>。</li>
+          <li>在 <strong>Branch</strong> 選擇 <code>main</code> 並指定 <code>/ (root)</code>，點選 <strong>Save</strong>。</li>
+          <li>1 分鐘後即可在全球網址 <code>https://您的帳號.github.io/50-startup-ml/</code> 瀏覽！</li>
+        </ol>
+        <div class="deploy-footer">
+          <span class="badge-success">全球 CDN • 免費 HTTPS • 永久存活</span>
+        </div>
+      </div>
+
+      <!-- Option 2: Vercel / Netlify -->
+      <div class="deploy-card glass-card">
+        <div class="deploy-card-header">
+          <div class="deploy-icon-badge">▲</div>
+          <div>
+            <h3 class="deploy-card-title">方案 2：Vercel / Netlify (一鍵拖曳上線)</h3>
+            <span class="deploy-card-sub">最適合 30 秒快速分享給主管或客戶</span>
+          </div>
+        </div>
+        <ol class="deploy-steps">
+          <li>開啟 <a href="https://app.netlify.com/drop" target="_blank" rel="noopener" class="text-indigo font-bold">Netlify Drop 頁面</a> 或登入 <a href="https://vercel.com" target="_blank" rel="noopener" class="text-indigo font-bold">Vercel</a>。</li>
+          <li>直接將整個專案資料夾 <code>c:\50-startup multi</code> 拖曳到瀏覽器視窗中。</li>
+          <li>系統會自動解析 <code>index.html</code>，於 10 秒內生成隨機專屬網址（例如：<code>https://startup-pulse-ai.vercel.app</code>）。</li>
+          <li>可隨時在控制台自訂您專屬的免費二級網域名稱。</li>
+        </ol>
+        <div class="deploy-footer">
+          <span class="badge-success">零指令配置 • 自動 SSL 憑證 • 即刻生效</span>
+        </div>
+      </div>
+
+      <!-- Option 3: Local Live Tunnel -->
+      <div class="deploy-card glass-card">
+        <div class="deploy-card-header">
+          <div class="deploy-icon-badge">⚡</div>
+          <div>
+            <h3 class="deploy-card-title">方案 3：本地公網隧道 (Localtunnel / Cloudflare)</h3>
+            <span class="deploy-card-sub">立即生成臨時公網網址，手機直接掃碼測試</span>
+          </div>
+        </div>
+        <ol class="deploy-steps">
+          <li>本機以 Python 或 Node 啟動伺服器：
+            <pre><code>python -m http.server 8000</code></pre>
+          </li>
+          <li>新開一個終端機，執行免費穿透工具：
+            <pre><code>npx localtunnel --port 8000</code></pre>
+          </li>
+          <li>終端機將立即輸出一個公網網址（如 <code>https://startup-50-demo.loca.lt</code>），任何連網裝置皆可訪問！</li>
+        </ol>
+        <div class="deploy-footer">
+          <span class="badge-success">即開即用 • 免註冊帳號 • 現場展示最佳</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-info">
+        <div class="brand-logo mb-2">
+          <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+          </div>
+          <span class="brand-name">StartupPulse<span class="brand-accent">.AI</span></span>
+        </div>
+        <p class="footer-text">
+          以 Scikit-Learn 與 CRISP-DM 方法論建置的新創公司多元線性迴歸投資決策支援平台。
+        </p>
+      </div>
+
+      <div class="footer-meta">
+        <div class="meta-item">
+          <strong>引擎技術：</strong> Python 3.14 • Scikit-Learn 1.9.1 • Chart.js
+        </div>
+        <div class="meta-item">
+          <strong>訓練資料：</strong> 50 Startups Dataset (California, New York, Florida)
+        </div>
+        <div class="meta-item">
+          <strong>方法論：</strong> CRISP-DM 6 Phases Standard Pipeline
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 StartupPulse AI. All rights reserved. Designed for Advanced Agentic Machine Learning.</span>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="dataset.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
