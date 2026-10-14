@@ -267,29 +267,53 @@ profitability is crucial for investment screening and capital budget allocation.
     # -------------------------------------------------------------------------
     print_header("Deployment", 6)
     
-    # Save the best pipeline and its metadata
+    # Save both the full pipeline and the optimal feature selection pipeline
     model_artifact_path = os.path.join("model", "startup_profit_pipeline.pkl")
+    optimal_artifact_path = os.path.join("model", "optimal_feature_selection_pipeline.pkl")
     meta_artifact_path = os.path.join("model", "model_metadata.json")
 
+    optimal_pipeline = fitted_models["Reduced Linear Model (R&D + Marketing)"]
+
     metadata = {
-        "model_name": "50_Startups_Multiple_Linear_Regression",
+        "project_name": "50_Startups_CRISP_DM_Feature_Selection",
         "methodology": "CRISP-DM",
         "library": "scikit-learn",
         "sklearn_version": "1.9.1",
-        "features": {
-            "numeric": ["R&D Spend", "Administration", "Marketing Spend"],
-            "categorical": ["State"],
-            "target": "Profit"
+        "full_model": {
+            "name": "Multiple Linear Regression (Full)",
+            "features": {
+                "numeric": ["R&D Spend", "Administration", "Marketing Spend"],
+                "categorical": ["State"],
+                "target": "Profit"
+            },
+            "intercept": params["intercept"],
+            "coefficients": params["coefficients"],
+            "metrics_test": eval_table[0],
+            "cv_performance": cv_metrics["Multiple Linear Regression (Full)"],
+            "artifact_path": model_artifact_path
         },
-        "intercept": params["intercept"],
-        "coefficients": params["coefficients"],
-        "metrics_test": eval_table[0],
-        "cv_performance": cv_metrics["Multiple Linear Regression (Full)"]
+        "optimal_sfs_model": {
+            "name": "Sequential Feature Selection (Optimal k=2)",
+            "features": ["R&D Spend", "Marketing Spend"],
+            "target": "Profit",
+            "intercept": sfs_summary["intercept"],
+            "coefficients": sfs_summary["coefficients"],
+            "metrics_test": {
+                "Model": "Reduced Model (R&D + Marketing)",
+                "Test R2": f"{sfs_summary['test_r2']:.4f}",
+                "Test RMSE ($)": f"{sfs_summary['test_rmse']:,.2f}",
+                "Test MAE ($)": f"{sfs_summary['test_mae']:,.2f}"
+            },
+            "artifact_path": optimal_artifact_path
+        },
+        "feature_selection_progression": sfs_summary["history"]
     }
 
     save_pipeline_artifact(primary_pipeline, model_artifact_path, metadata, meta_artifact_path)
-    print(f"  [Serialized] Production Pipeline saved to: {model_artifact_path}")
-    print(f"  [Serialized] Model Metadata saved to:      {meta_artifact_path}")
+    joblib.dump(optimal_pipeline, optimal_artifact_path)
+    print(f"  [Serialized] Full Production Pipeline saved to:    {model_artifact_path}")
+    print(f"  [Serialized] Optimal SFS Pipeline saved to:        {optimal_artifact_path}")
+    print(f"  [Serialized] Comprehensive Metadata saved to:      {meta_artifact_path}")
 
     # Verification Inference Simulation
     print("\nRunning Production Inference Verification on 3 Hypothetical Startups:")
