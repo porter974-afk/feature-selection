@@ -1,5 +1,9 @@
 # 50 Startups Multiple Linear Regression (CRISP-DM)
 
+https://porter974-afk.github.io/feature-selection/ml-projects.html
+
+![50 startup](50startup.png)
+
 An end-to-end Machine Learning project using **Scikit-Learn** to model and predict startup profitability based on operational expenditures (`R&D Spend`, `Administration`, `Marketing Spend`) and geographic location (`State`). The project strictly adheres to the **CRISP-DM (Cross-Industry Standard Process for Data Mining)** lifecycle.
 
 ---
