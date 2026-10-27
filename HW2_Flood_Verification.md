@@ -1,97 +1,70 @@
-# 機器學習作業 HW2 驗收報告：Kaggle 洪災機率預測 (Flood Prediction)
+# HW2 Flood Prediction：模型分析與部署紀錄
 
-## 📌 審查重點與老師要求符應表
+官方資料來源：[Kaggle Playground Series S4E5 train.csv](https://www.kaggle.com/competitions/playground-series-s4e5/data?select=train.csv)。使用實際下載的官方競賽資料（該競賽提供合成資料），不是自行編造數值。共 1,117,957 筆、22 欄，排除 id 與 FloodProbability 後為 **20 個原始輸入特徵**。網站保留 50 Startups、Boston Housing 與自訂 CSV 入口。
 
-| 檢核項目 | 作業要求規範 | 本專案實測規格與結果 | 符合判定 |
-| :--- | :--- | :--- | :---: |
-| **資料來源** | 來自 Kaggle 競賽真實資料 | [Kaggle Playground Series s4e5](https://www.kaggle.com/competitions/playground-series-s4e5/data) 官方真實 `train.csv` | ✅ **完全符合** |
-| **特徵數限制** | 原始特徵數 $>13$ 且 $<40$ | **20 個原始數值輸入特徵**（總欄位 22，排除 `id` 與 `FloodProbability`） | ✅ **完全符合** ($13 < 20 < 40$) |
-| **目標變數** | 連續型標籤（迴歸任務） | `FloodProbability`（洪災發生機率，介於 0.285 ~ 0.725 之間，0 缺失值） | ✅ **完全符合** |
-| **演算法** | Scikit-Learn 多元線性迴歸 | `sklearn.linear_model.LinearRegression` | ✅ **完全符合** |
-| **資料切分** | 固定 `random_state=42` | 80% 訓練集（894,365 筆）/ 20% 測試集（223,592 筆） | ✅ **完全符合** |
-| **特徵選取** | 使用 RFE (Recursive Feature Elimination) | 使用 `RFE(LinearRegression(), n_features_to_select=10)` 精選 10 核心特徵 | ✅ **完全符合** |
-| **評估指標** | 計算 MAE、MSE、RMSE、R² | 全部數值來自 223,592 筆獨立測試集實測執行 | ✅ **完全符合** |
-| **統計區間** | 訓練集內部校準集 95% 預測區間 | 內部切分 178,873 筆校準集，計算 95% 保形預測區間與實測覆蓋率 | ✅ **完全符合** |
-| **診斷圖表** | 散佈圖、殘差圖、區間圖等 | 產出 5 張高解析度診斷圖表於 `outputs/` | ✅ **完全符合** |
-| **專案架構** | 保留原題目並整合至下拉選單 | 完整保留 50 Startups、Boston Housing，支援自訂 CSV URL 與上傳 | ✅ **完全符合** |
+## 資料下載與重現
 
----
+1. 登入 Kaggle，至上述官方資料頁，依平台要求接受競賽規則，再下載 train.csv（若下載 ZIP，先解壓縮）。
+2. 在專案根目錄建立 datasets/，將原始檔放為 datasets/train.csv；不可改名為 train.csv/train.csv。
+3. 安裝專案所需 Python 套件後，從專案根目錄執行 `python flood-prediction/main.py` 可重現運算。本次部署修正沒有執行訓練。
 
-## 🔬 20 項原始特徵清單與 RFE 篩選結果
+完整 train.csv 與下載 ZIP 不納入 Git；原始資料保留本機。網站只需預先產生的 JS、PNG、JSON/CSV 結果，不需在 Pages 執行 Python。
 
-資料集總計 **1,117,957 筆真實樣本**，完全排除 `id`（流水號）與 `FloodProbability`（預測目標）後，確認具有 **20 個原始輸入特徵**：
+## 模型與資料切分
 
-| # | 特徵名稱 (Feature Name) | 意義說明 | RFE 排名 | 是否選入 10 核心特徵 | Full OLS 係數 ($\beta$) | RFE 10 係數 ($\beta$) |
-| :-: | :--- | :--- | :-: | :-: | :-: | :-: |
-| 1 | `MonsoonIntensity` | 季風降雨強度 | **Rank 1** | **選入** | +0.005613 | +0.005057 |
-| 2 | `TopographyDrainage` | 地形排水坡度條件 | **Rank 1** | **選入** | +0.005645 | +0.004979 |
-| 3 | `RiverManagement` | 河川防洪治理程度 | **Rank 1** | **選入** | +0.005662 | +0.004994 |
-| 4 | `Deforestation` | 森林砍伐與植被破壞 | **Rank 1** | **選入** | +0.005681 | +0.005003 |
-| 5 | `Urbanization` | 都市化不透水率 | Rank 5 | 淘汰 | +0.005659 | — |
-| 6 | `ClimateChange` | 氣候變遷降雨極端化 | Rank 2 | 淘汰 | +0.005659 | — |
-| 7 | `DamsQuality` | 水庫大壩防洪品質 | **Rank 1** | **選入** | +0.005653 | +0.004997 |
-| 8 | `Siltation` | 河床淤積沉積程度 | **Rank 1** | **選入** | +0.005640 | +0.005032 |
-| 9 | `AgriculturalPractices` | 農業水土保持不良 | Rank 3 | 淘汰 | +0.005639 | — |
-| 10 | `Encroachments` | 行水區違規侵占違建 | Rank 8 | 淘汰 | +0.005646 | — |
-| 11 | `IneffectiveDisasterPreparedness`| 防災整備不足程度 | Rank 9 | 淘汰 | +0.005640 | — |
-| 12 | `DrainageSystems` | 市區下水道排水效能 | Rank 10 | 淘汰 | +0.005633 | — |
-| 13 | `CoastalVulnerability` | 沿海風暴潮脆弱度 | Rank 7 | 淘汰 | +0.005671 | — |
-| 14 | `Landslides` | 山坡崩塌土石流風險 | **Rank 1** | **選入** | +0.005643 | +0.004982 |
-| 15 | `Watersheds` | 集水區保育治理程度 | Rank 6 | 淘汰 | +0.005648 | — |
-| 16 | `DeterioratingInfrastructure`| 水利基礎設施老化率 | **Rank 1** | **選入** | +0.005618 | +0.005031 |
-| 17 | `PopulationScore` | 受災潛勢區人口密度 | **Rank 1** | **選入** | +0.005681 | +0.005006 |
-| 18 | `WetlandLoss` | 天然滯洪濕地流失率 | **Rank 1** | **選入** | +0.005640 | +0.004977 |
-| 19 | `InadequatePlanning` | 防洪規劃不足欠周全 | Rank 11 | 淘汰 | +0.005612 | — |
-| 20 | `PoliticalFactors` | 政策落實與治理阻礙 | Rank 4 | 淘汰 | +0.005646 | — |
-| — | **模型截距 ($\beta_0$)** | Baseline 常數項 | — | — | **-0.053326** | **+0.257373** |
+使用 sklearn LinearRegression；random_state=42，80% 訓練 894,365 筆、20% 獨立測試 223,592 筆。訓練內再分成 proper training 715,492 筆及內部驗證／校準 178,873 筆。訓練與指標計算使用全部資料，沒有抽樣。
 
----
+RFE 在 proper training 擬合，完整淘汰順序評估 k=1–20；10 特徵為固定比較基準，不是最佳子集。最新選取順序：
 
-## 📊 模型實測評估成績表 (Test Set: 223,592 筆獨立樣本)
+1. `MonsoonIntensity`
+2. `Siltation`
+3. `RiverManagement`
+4. `DamsQuality`
+5. `ClimateChange`
+6. `PopulationScore`
+7. `TopographyDrainage`
+8. `Landslides`
+9. `Deforestation`
+10. `WetlandLoss`
 
-本專案使用 `random_state=42` 切分，所有評估數據由本機 Python 執行實測所得：
+驗證集 RMSE 最小為 k=20。測試曲線僅作描述，不用於選擇 k。
 
-| 評估維度 / 指標 | 全特徵模型 (Full OLS · 20 特徵) | RFE 精選模型 (RFE Optimal · 10 特徵) | 差異比較與水利分析意涵 |
-| :--- | :---: | :---: | :--- |
-| **判定係數 ($R^2$)** | **0.84488 (84.49%)** | **0.37794 (37.79%)** | 減少 10 個特徵導致解釋力急遽下降 46.7%，證實 20 個因子均具獨立且顯著之致災貢獻 |
-| **均方根誤差 (RMSE)** | **0.02008** | **0.04021** | 全特徵模型預測誤差減半（誤差僅約 2.01 個百分點） |
-| **均方誤差 (MSE)** | **0.0004032** | **0.0016169** | 全特徵殘差變異量僅為 RFE 模型的 24.9% |
-| **平均絕對誤差 (MAE)** | **0.01579** | **0.03247** | 平均單一樣本預測偏差小於 1.58% |
-| **95% 預測區間半寬 ($q_{95}$)**| **± 0.04006** | **± 0.07751** | 全特徵預測信心區間更加緊縮精準 |
-| **95% 預測區間平均寬度** | **0.08012** | **0.15503** | 全特徵模型區間寬度大幅縮窄 48.3% |
-| **95% 測試集實測覆蓋率** | **94.89%** | **94.99%** | **完全收斂於理論 95.0% 標準**，保形預測區間具備極高統計效力 |
+## 實測結果
 
----
+數值以 model/model_metadata.json、outputs/model_evaluation_metrics.csv 及 outputs/rfe_feature_selection_metrics.csv 為準。
 
-## 📈 診斷與視覺化圖表清單
+| 模型 | RMSE | MAE | R² | 95% 區間覆蓋率 | 平均區間寬度 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| LinearRegression 20 特徵 | 0.02008 | 0.01579 | 0.84488 | 94.97% | 0.08012 |
+| RFE 10 特徵 | 0.04026 | 0.03249 | 0.37642 | 94.95% | 0.15501 |
 
-所有圖表均已由 Python 腳本產生至 `flood-prediction/outputs/`，並嵌入於前端診斷區塊：
+點預測模型使用完整 80% 訓練集。Split Conformal 區間另外使用 proper-training 模型，校準及測試使用同一模型，校準後不重新擬合；殘差分位數採有限樣本修正與 method=higher。覆蓋率是獨立測試集的實測比例，不是每個樣本的個別保證。
 
-1. **`actual_vs_predicted.png`（真實值 vs 預測值密度散佈圖）**：
-   * 採用 Hexbin 對數密度著色，清晰呈現百萬點集中於理想 45 度對角線 ($y = x$)，無系統性高估或低估偏誤。
-2. **`prediction_interval_95.png`（95% 保形預測區間圖）**：
-   * 繪製代表性測試子集預測曲線、上下 95% 預測區間帶與實際洪災機率點，實測覆蓋率達到 94.89%。
-3. **`residual_diagnostics.png`（殘差診斷圖）**：
-   * 包含「殘差 vs 擬合值散佈圖」與「殘差分佈長條圖/KDE」，殘差平均值為 0.00000，標準差為 0.02008，符合 Gauss-Markov 假設。
-4. **`model_comparison.png`（模型指標與權重比較圖）**：
-   * 直觀對比 20 特徵與 10 特徵在 $R^2$、RMSE、MAE 的柱狀圖，並展示 RFE 前 10 名特徵的迴歸權重。
-5. **`correlation_heatmap.png`（20 特徵相關係數熱力圖）**：
-   * 顯示 20 項環境因子兩兩之間的 Pearson 相關係數，特徵間具備良好的低共線性特質。
+本資料中保留 20 特徵比固定 RFE 10 特徵有較低誤差及較高 R²；不能單憑此結果推論特徵具有因果效果或統計顯著性。95% 區間實測覆蓋率接近目標，亦不表示所有迴歸假設均已成立。
 
----
+## 三張核心圖（300 dpi）
 
-## 🌐 整合網站架構與操作說明
+![LinearRegression 實際值與預測值：20 特徵與 RFE 10 特徵的雙面板 Hexbin 圖；紅虛線為 y=x。](flood-prediction/outputs/actual_vs_predicted_comparison.png)
 
-1. **專案中心下拉選單**：
-   * 進入 `ml-projects.html` 頂部選單，新增 **「Flood Prediction（Kaggle 20 Features）」** 選項。
-   * 切換後網址支援 `?project=flood` 參數直接定位。
-2. **百萬資料集抽樣瀏覽器**：
-   * 序列化 500 筆真實測試集樣本至 `dataset.js`，支援即時關鍵字搜尋與風險等級過濾。
-   * 點選任意一列紀錄之「帶入」按鈕，數值可自動填入上方模擬器。
-3. **即時模擬器與預測區間**：
-   * 支援 20 項變數之滑桿與數字即時調整。
-   * 提供「🚨 極端洪災警戒」、「🌊 季風暴雨多發」、「🛡️ 完善防洪治理」、「⚖️ 全國中位基準」四組情境預設。
-   * 提供 Full OLS（20 特徵）與 RFE Optimal（10 特徵）即時模型切換。
-4. **保留原功能**：
-   * 「50 Startups 獲利預測」與「Boston Housing CRISP-DM」完整保留，未被破壞。
-   * 頂部「＋ 匯入 Dataset」實驗室（CSV URL 輸入與上傳 CSV 本地訓練）均運作正常。
+`flood-prediction/outputs/actual_vs_predicted_comparison.png`：LinearRegression 實際值與預測值：20 特徵與 RFE 10 特徵的雙面板 Hexbin 圖；紅虛線為 y=x。
+
+![RFE 1–20 特徵的 RMSE 與 R²，並列內部驗證及獨立測試結果；最佳特徵數只由驗證集決定。](flood-prediction/outputs/feature_selection_curve.png)
+
+`flood-prediction/outputs/feature_selection_curve.png`：RFE 1–20 特徵的 RMSE 與 R²，並列內部驗證及獨立測試結果；最佳特徵數只由驗證集決定。
+
+![95% Split Conformal 預測區間、預測曲線與區間內外實際值；圖中標示完整測試集覆蓋率及平均寬度，橫軸不是時間。](flood-prediction/outputs/prediction_interval_95.png)
+
+`flood-prediction/outputs/prediction_interval_95.png`：95% Split Conformal 預測區間、預測曲線與區間內外實際值；圖中標示完整測試集覆蓋率及平均寬度，橫軸不是時間。
+
+散佈圖只為顯示，使用 RandomState(42).choice(test_rows, 40000, replace=False) 無放回抽樣；所有指標仍使用完整測試集。區間圖依 proper-model 預測排序，取 180 個等間距排名位置顯示；沒有時間序列、分箱平均線或下方直方圖。
+
+完整 RFE 1–20 結果：[RFE CSV](flood-prediction/outputs/rfe_feature_selection_metrics.csv)；模型指標：[模型 CSV](flood-prediction/outputs/model_evaluation_metrics.csv)。資料 SHA-256 與切分、抽樣資訊位於 [metadata](flood-prediction/model/model_metadata.json)。
+
+## 測試與部署狀態（2026-10-27，Asia/Taipei）
+
+- Python：前輪已完成完整運算；本輪只比對 metadata 與兩份 CSV 的所有相關指標、k=1–20 完整性，以及 PNG 解碼和 300 dpi，未重訓或修改成果數據。
+- localhost:8000：前輪 HTTP 檢查入口、三個專案與直接引用的本機資源皆為 200；使用者本輪已確認完成 localhost 圖表驗收。這是使用者回報的手動驗收，不是本代理新增的瀏覽器測試。
+- 專案切換／CSV：保留既有實作，ml-projects.html、50 Startups 與 Boston Housing 程式未修改。先前代理未能自動操作瀏覽器或讀取 Console；不能將靜態檢查解讀為互動／Console 全面通過。
+- GitHub Pages：尚待推送後由使用者手動開啟確認；不可宣稱公開網站已驗證成功。
+
+正式網址：[Flood Prediction](https://porter974-afk.github.io/feature-selection/ml-projects.html?project=flood)。公開驗收請確認三圖可見、三個題目切換、CSV URL 及本機 CSV 匯入，並在 F12 Console／Network 檢查 JavaScript 錯誤、404 與 CDN／CORS 問題。CSV 測試可用專案的 50_Startups.csv；不需點擊訓練。

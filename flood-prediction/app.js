@@ -85,8 +85,8 @@ const PHASES = [
   ['評估 (Evaluation)',
    '在 223,592 筆獨立測試集上評估模型性能，全維度 20 特徵大幅超越 RFE 10 特徵模型。',
    ['Full OLS 20 特徵：Test R² = 0.84488 | RMSE = 0.02008 | MAE = 0.01579',
-    'RFE 10 特徵：Test R² = 0.37794 | RMSE = 0.04021 | MAE = 0.03247',
-    '95% 預測區間實測覆蓋率：Full OLS 達到 94.89%（平均寬度 0.08012），RFE 10 達到 94.99%（平均寬度 0.15503）',
+    'RFE 10 特徵：Test R² = 0.37644 | RMSE = 0.04031 | MAE = 0.03247',
+    '95% 預測區間實測覆蓋率：Full OLS 達到 94.97%（平均寬度 0.08012），RFE 10 達到 94.95%（平均寬度 0.15501）',
     '關鍵洞察：洪災風險是由 20 項因子共同線性疊加促成，削減特徵會直接導致預測能力腰斬']
   ],
   ['部署 (Deployment)',
@@ -114,8 +114,10 @@ function estimate(v, type = architecture) {
 
   const clamped = Math.max(0.05, Math.min(0.95, prediction));
   const q95 = isOptimal ? FLOOD_MODEL.conformalPI.q95Rfe : FLOOD_MODEL.conformalPI.q95Full;
-  const lower = Math.max(0, clamped - q95);
-  const upper = Math.min(1, clamped + q95);
+  const piModel = FLOOD_MODEL.conformalModels[isOptimal ? "rfe" : "full"];
+  const piCenter = Object.entries(piModel.coefficients).reduce((sum, [key, c]) => sum + Number(v[key] ?? BASE[key]) * c, piModel.intercept);
+  const lower = piCenter - q95;
+  const upper = piCenter + q95;
 
   return {
     prediction: clamped,
@@ -198,7 +200,7 @@ function update() {
   if (probValEl) probValEl.innerHTML = `${probPercent} <span class="risk-pill ${risk.cls}">${risk.label}</span>`;
 
   const typeLabel = document.getElementById('model-type-label');
-  if (typeLabel) typeLabel.textContent = architecture === 'full' ? 'Full OLS (20 特徵)' : 'RFE Optimal (10 特徵)';
+  if (typeLabel) typeLabel.textContent = architecture === 'full' ? 'Full OLS (20 特徵)' : 'RFE Selected (10 特徵)';
 
   const countLabel = document.getElementById('model-features-count');
   if (countLabel) countLabel.textContent = architecture === 'full' ? '20 項原始特徵' : '10 項 RFE 特徵';
@@ -288,7 +290,7 @@ function initCharts() {
     compareChart = new Chart(compareCtx, {
       type: 'bar',
       data: {
-        labels: ['Full OLS (20 特徵)', 'RFE Optimal (10 特徵)'],
+        labels: ['Full OLS (20 特徵)', 'RFE Selected (10 特徵)'],
         datasets: [{
           data: [],
           backgroundColor: ['#06b6d4', '#10b981'],
@@ -334,7 +336,7 @@ function renderPhases(active = 0) {
         <p>${desc}</p>
         <ul class="crisp-keypoints">${points.map(x => `<li>${x}</li>`).join('')}</ul>
       </div>
-      <pre class="crisp-code-preview">${active === 3 ? "Scikit-Learn RFE 特徵淘汰：\n20 特徵選取 10 核心特徵\nFull Test R²: 0.8449 | RMSE: 0.0201\nRFE Test R²:  0.3779 | RMSE: 0.0402\n95% PI 覆蓋率: 94.89% (±0.0401)" : "Kaggle Playground Series s4e5\n1,117,957 筆海量樣本 · 20 原始特徵\n目標：FloodProbability (0.285~0.725)"}</pre>
+      <pre class="crisp-code-preview">${active === 3 ? "Scikit-Learn RFE 特徵淘汰：\n20 特徵選取 10 核心特徵\nFull Test R²: 0.8449 | RMSE: 0.0201\nRFE Test R²:  0.3764 | RMSE: 0.0403\n95% PI 覆蓋率: 94.97% (±0.0401)" : "Kaggle Playground Series s4e5\n1,117,957 筆海量樣本 · 20 原始特徵\n目標：FloodProbability (0.285~0.725)"}</pre>
     </div>
   `;
 

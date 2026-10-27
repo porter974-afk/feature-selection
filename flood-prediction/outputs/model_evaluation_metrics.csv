@@ -1,0 +1,3 @@
+﻿model_name,r2,rmse,mse,mae,pi_half_width,pi_avg_width,pi_coverage_pct
+Full OLS (20 Features),0.84488,0.02008,0.0004032,0.01579,0.04006,0.08012,94.97
+RFE Selected (10 Features),0.37642,0.04026,0.0016209,0.03249,0.0775,0.15501,94.95

@@ -7,7 +7,7 @@ __pycache__/
 
 # Environments
 .env
-.venv
+.venv/
 env/
 venv/
 ENV/
@@ -23,3 +23,17 @@ Thumbs.db
 datasets/
 train.csv/
 *.zip
+
+# Test and tool caches
+.pytest_cache/
+.cache/
+# Explicit official Kaggle downloads (keep local originals)
+/datasets/train.csv
+/train.csv.zip
+# Retraining checkpoints and temporary outputs; retain small fitted OLS models
+/flood-prediction/model/checkpoints/
+/flood-prediction/model/*.tmp
+/flood-prediction/model/*.onnx
+/flood-prediction/model/*.h5
+/flood-prediction/model/*.pt
+/flood-prediction/outputs/*.tmp

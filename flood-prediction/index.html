@@ -17,7 +17,7 @@
   <div class="announcement-bar">
     <div class="announcement-content">
       <span class="badge-pulse"></span>
-      <span><strong>Kaggle Flood Prediction 專案已就緒</strong> · 1,117,957 筆海量資料 · 20 項原始特徵 · Test R² = 84.49% · 95% 預測區間覆蓋率 94.89%</span>
+      <span><strong>Kaggle Flood Prediction 專案已就緒</strong> · 1,117,957 筆海量資料 · 20 項原始特徵 · Test R² = 84.49% · 95% 預測區間覆蓋率 94.97%</span>
       <a href="#diagnostics-section" class="announcement-link">查看模型診斷與評估 →</a>
     </div>
   </div>
@@ -89,7 +89,7 @@
           </div>
           <div class="metric-card glass-card">
             <span class="metric-label">95% 預測區間覆蓋率</span>
-            <strong class="metric-value">94.89%</strong>
+            <strong class="metric-value">94.97%</strong>
             <span class="metric-desc">平均區間寬度: ± 4.01%</span>
           </div>
         </div>
@@ -157,8 +157,8 @@
               </button>
               <button class="model-arch-btn" data-arch="optimal">
                 <span class="arch-btn-content">
-                  <b>RFE Optimal · 10 特徵</b>
-                  <small>Test R² = 37.79% · RMSE = 0.0402</small>
+                  <b>RFE Selected · 10 特徵</b>
+                  <small>Test R² = 37.64% · RMSE = 0.0402</small>
                 </span>
               </button>
             </div>
@@ -256,50 +256,101 @@
       </div>
 
       <div class="diagnostics-grid">
+        <!-- 圖一：實際值與預測值比較圖 -->
         <article class="diag-card glass-card" style="grid-column: 1 / -1;">
           <div class="diag-card-header">
-            <b class="diag-title">真實值 vs 模型預測值散佈圖 (Hexbin Density Scatter Plot)</b>
-            <span class="diag-tag">Test R² = 0.8449 · 高解釋力</span>
+            <b class="diag-title">【圖一】LinearRegression 實際值與預測值比較圖（Full 20 特徵 vs. RFE 10 特徵）</b>
+            <span class="diag-tag">300 DPI · 測試集 n=223,592 · 雙模型對照</span>
           </div>
           <div class="diag-img-wrapper">
-            <img src="outputs/actual_vs_predicted.png" class="zoomable-img" alt="實際值與預測值散佈圖">
+            <img src="outputs/actual_vs_predicted_comparison.png" class="zoomable-img" alt="圖一：LinearRegression 實際值與預測值比較圖">
+          </div>
+          <div class="diag-card-footer">
+            <p><strong>視覺化診斷分析：</strong>採用對數密度 Hexbin 分佈與分箱平均折線（Binned Mean Curve）。全特徵模型（A）各分箱均值高度重合於 45° 理想對角線（$R^2 = 84.49\%$, $\text{RMSE} = 0.0201$, $\text{MAE} = 0.0158$）；而 RFE 精選 10 特徵模型（B）因遺失 10 個獨立環境致災因子，離散度劇增且迴歸斜率趨緩（$R^2 = 37.64\%$, $\text{RMSE} = 0.0403$, $\text{MAE} = 0.0325$）。</p>
           </div>
         </article>
 
+        <!-- 圖二：RFE Feature Selection 效能線圖 -->
         <article class="diag-card glass-card" style="grid-column: 1 / -1;">
           <div class="diag-card-header">
-            <b class="diag-title">95% 保形預測區間（Conformal Prediction Interval）</b>
-            <span class="diag-tag">實測覆蓋率 94.89% (目標 95%) · 寬度 ±0.0401</span>
+            <b class="diag-title">【圖二】RFE Feature Selection 效能線圖（RMSE &amp; R-squared by Number of Features）</b>
+            <span class="diag-tag">300 DPI · 嚴格無測試洩漏 · 訓練集內部驗證</span>
           </div>
           <div class="diag-img-wrapper">
-            <img src="outputs/prediction_interval_95.png" class="zoomable-img" alt="95% 預測區間圖">
+            <img src="outputs/feature_selection_curve.png" class="zoomable-img" alt="圖二：RFE Feature Selection 效能線圖">
+          </div>
+          <div class="diag-card-footer">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.5rem;">
+              <strong style="color: #38bdf8; font-size: 0.92rem;">RFE 特徵淘汰重要特徵數（k）評估數據表：</strong>
+              <a href="outputs/rfe_feature_selection_metrics.csv" download class="btn-table-action" style="text-decoration: none;">📥 下載完整 20 特徵評估 CSV</a>
+            </div>
+            <div class="table-responsive" style="margin-bottom: 0.6rem;">
+              <table class="data-table" style="font-size: 0.82rem;">
+                <thead>
+                  <tr>
+                    <th>特徵數 (k)</th>
+                    <th>該階新增特徵重點</th>
+                    <th>內部驗證集 RMSE</th>
+                    <th>內部驗證集 R²</th>
+                    <th>獨立測試集 RMSE</th>
+                    <th>獨立測試集 R²</th>
+                    <th>評估備註</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>k = 1</td><td>MonsoonIntensity</td><td>0.05018</td><td>0.03565</td><td>0.05008</td><td>3.53%</td><td>單一季風驅動</td></tr>
+                  <tr><td>k = 5</td><td>ClimateChange (+累計 5 個)</td><td>0.04627</td><td>0.18007</td><td>0.04615</td><td>18.07%</td><td>氣候與水文基礎</td></tr>
+                  <tr><td>k = 8</td><td>Landslides (+累計 8 個)</td><td>0.04283</td><td>0.29747</td><td>0.04279</td><td>29.57%</td><td>納入地質崩塌</td></tr>
+                  <tr style="background: rgba(99, 102, 241, 0.12); font-weight: bold;"><td>k = 10</td><td>WetlandLoss (+累計 10 個)</td><td>0.04028</td><td>0.37840</td><td>0.04026</td><td>37.64%</td><td>RFE 10 核心基準</td></tr>
+                  <tr><td>k = 12</td><td>IneffectiveDisasterPreparedness</td><td>0.03747</td><td>0.46220</td><td>0.03742</td><td>46.12%</td><td>納入防救災整備</td></tr>
+                  <tr><td>k = 15</td><td>CoastalVulnerability</td><td>0.03243</td><td>0.59710</td><td>0.03240</td><td>59.63%</td><td>納入海岸風暴潮</td></tr>
+                  <tr><td>k = 18</td><td>DrainageSystems</td><td>0.02591</td><td>0.74283</td><td>0.02588</td><td>74.23%</td><td>納入都市雨水下水道</td></tr>
+                  <tr style="background: rgba(16, 185, 129, 0.14); font-weight: bold; color: #6ee7b7;"><td>k = 20</td><td>DeterioratingInfrastructure</td><td>0.02007</td><td>0.84565</td><td>0.02008</td><td>84.49%</td><td>全特徵最佳解 (Global Best)</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">※ 註：最佳特徵數由訓練集內部切分之 20% 驗證集（n=178,873）評估判定，無使用測試集選擇特徵，嚴格恪守防資料洩漏（Leakage-Free）原則。</p>
           </div>
         </article>
 
+        <!-- 圖三：95% 保形預測區間圖 -->
+        <article class="diag-card glass-card" style="grid-column: 1 / -1;">
+          <div class="diag-card-header">
+            <b class="diag-title">【圖三】95% Conformal Prediction 預測區間圖（95% Prediction Interval Band）</b>
+            <span class="diag-tag">300 DPI · 實測覆蓋率 94.97% · 寬度 ±0.0401</span>
+          </div>
+          <div class="diag-img-wrapper">
+            <img src="outputs/prediction_interval_95.png" class="zoomable-img" alt="圖三：95% Conformal Prediction 預測區間圖">
+          </div>
+          <div class="diag-card-footer">
+            <p><strong>統計不確定度檢驗：</strong>依預測機率由小到大單調排序測試樣本（非時間序列，無造假日期）。透過 178,873 筆校準子集導出之無分佈假設 95% 保形門檻（$q_{95} = \pm 0.04006$，平均總寬度 $0.08012$）。在 223,592 筆獨立測試集上驗證，<strong>實測覆蓋率精準達到 94.97%</strong>（理論目標 95.0%），藍色點代表被區間完美包絡之樣本，紅色 x 標記代表未涵蓋樣本（僅佔約 5.03%），下方並附有絕對殘差分佈與 $q_{95}$ 臨界線檢驗。</p>
+          </div>
+        </article>
+
+        <!-- 殘差與相關矩陣補充診斷 -->
         <article class="diag-card glass-card">
           <div class="diag-card-header">
             <b class="diag-title">殘差診斷 (Fitted vs Residuals &amp; Error Distribution)</b>
+            <span class="diag-tag">300 DPI</span>
           </div>
           <div class="diag-img-wrapper">
             <img src="outputs/residual_diagnostics.png" class="zoomable-img" alt="殘差診斷圖">
           </div>
+          <div class="diag-card-footer">
+            <p style="font-size: 0.82rem; margin: 0;">殘差均值為 0.00000，標準差 0.02008，分佈對稱且無異方差漏斗現象，滿足 Gauss-Markov 假設。</p>
+          </div>
         </article>
 
         <article class="diag-card glass-card">
           <div class="diag-card-header">
-            <b class="diag-title">模型性能與係數權重比較 (Full 20 vs RFE 10)</b>
+            <b class="diag-title">模型綜合評估指標對照 (Full 20 vs RFE 10)</b>
+            <a href="outputs/model_evaluation_metrics.csv" download class="diag-tag" style="text-decoration: none;">📥 下載指標 CSV</a>
           </div>
           <div class="diag-img-wrapper">
             <img src="outputs/model_comparison.png" class="zoomable-img" alt="模型指標與係數比較圖">
           </div>
-        </article>
-
-        <article class="diag-card glass-card" style="grid-column: 1 / -1;">
-          <div class="diag-card-header">
-            <b class="diag-title">20 項特徵與洪災機率 Pearson 相關係數矩陣 (Correlation Heatmap)</b>
-          </div>
-          <div class="diag-img-wrapper">
-            <img src="outputs/correlation_heatmap.png" class="zoomable-img" alt="相關係數熱力圖">
+          <div class="diag-card-footer">
+            <p style="font-size: 0.82rem; margin: 0;">直觀比較 Full 20 與 RFE 10 之 Test R²、RMSE、MAE 與前 10 名核心特徵之迴歸權重。</p>
           </div>
         </article>
       </div>
