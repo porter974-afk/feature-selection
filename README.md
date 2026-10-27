@@ -1,6 +1,79 @@
-# 50 Startups Multiple Linear Regression (CRISP-DM)
+# Multiple Linear Regression & Feature Selection (CRISP-DM)
 
-https://porter974-afk.github.io/feature-selection/ml-projects.html
+👉 **ML Projects Hub 線上專案中心**：  
+[https://porter974-afk.github.io/feature-selection/ml-projects.html](https://porter974-afk.github.io/feature-selection/ml-projects.html)
+
+本專案包含三個完整依循 **CRISP-DM (Cross-Industry Standard Process for Data Mining)** 生命週期的多元線性迴歸與特徵選取平台：
+
+| 專案名稱 | 資料集來源 | 原始輸入特徵數 | 訓練/測試樣本數 | 最佳模型表現 ($R^2$) | 規格符應 (HW2) |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| 🌊 **Flood Prediction** | **Kaggle S4E5** | **20 項特徵** | **1,117,957 筆** | **84.49%** (RMSE: 0.0201) | ✅ **符合特徵數 &gt;13 且 &lt;40** |
+| 🏠 **Boston Housing** | Kaggle Housing | 13 項特徵 | 506 筆 | 74.06% (RMSE: 4.93) | 經典房價迴歸 |
+| 🚀 **50 Startups** | 經典新創獲利 | 4 項特徵 | 50 筆 | 89.87% (RMSE: $9,055) | 支出與 ROI 歸因 |
+
+---
+
+## 🌊 Kaggle Flood Prediction 專案解析 (HW2 核心)
+
+### 1. 題目背景與作業規範
+* **競賽資料來源**：[Kaggle Playground Series s4e5 (Regression with a Flood Prediction Dataset)](https://www.kaggle.com/competitions/playground-series-s4e5/data)。
+* **資料規模**：使用 Kaggle 官方真實 `train.csv`，總計 **1,117,957 筆樣本**。
+* **特徵數檢驗**：總欄位 22 欄，排除流水號 `id` 與目標標籤 `FloodProbability` 後，**確認具備 20 個原始輸入特徵**，嚴格滿足老師指定之 **特徵數 >13 且 <40**。
+* **資料品質**：全欄位 0 缺失值，無人工假造資料。
+
+### 2. 20 項原始輸入特徵一覽
+1. `MonsoonIntensity`（季風降雨強度）
+2. `TopographyDrainage`（地形排水坡度條件）
+3. `RiverManagement`（河川防洪治理程度）
+4. `Deforestation`（森林砍伐與植被破壞）
+5. `Urbanization`（都市化不透水率）
+6. `ClimateChange`（氣候變遷降雨極端化）
+7. `DamsQuality`（水庫大壩防洪品質）
+8. `Siltation`（河床淤積沉積程度）
+9. `AgriculturalPractices`（農業水土保持不良）
+10. `Encroachments`（行水區違規侵占違建）
+11. `IneffectiveDisasterPreparedness`（防災整備不足程度）
+12. `DrainageSystems`（市區下水道排水效能）
+13. `CoastalVulnerability`（沿海風暴潮脆弱度）
+14. `Landslides`（山坡崩塌土石流風險）
+15. `Watersheds`（集水區保育治理程度）
+16. `DeterioratingInfrastructure`（水利基礎設施老化率）
+17. `PopulationScore`（受災潛勢區人口密度）
+18. `WetlandLoss`（天然滯洪濕地流失率）
+19. `InadequatePlanning`（防洪規劃不足欠周全）
+20. `PoliticalFactors`（政策落實與治理阻礙）
+
+### 3. 模型訓練、RFE 特徵淘汰與 95% 保形預測區間
+* **演算法**：Scikit-Learn `LinearRegression`。
+* **資料切分**：固定 `random_state=42` 切分 80% 訓練集（894,365 筆）與 20% 測試集（223,592 筆）。
+* **RFE 特徵淘汰**：使用 `RFE(LinearRegression(), n_features_to_select=10)` 從 20 個特徵選出 10 個核心特徵：
+  `['MonsoonIntensity', 'TopographyDrainage', 'RiverManagement', 'Deforestation', 'DamsQuality', 'Siltation', 'Landslides', 'DeterioratingInfrastructure', 'PopulationScore', 'WetlandLoss']`
+* **95% 保形預測區間 (Conformal Prediction)**：
+  從訓練集再獨立切分 20% 校準集（178,873 筆），計算殘差絕對值分位數，構建無分佈假設的 95% 預測區間。
+
+### 4. 實測模型成效比較表 (Test Set: 223,592 Samples)
+所有評估數字均來自本機實際執行結果：
+
+| 評估指標 | 全特徵模型 (Full OLS · 20 特徵) | RFE 精選模型 (RFE Optimal · 10 特徵) | 統計分析與洞察 |
+| :--- | :---: | :---: | :--- |
+| **Test $R^2$** | **0.84488 (84.49%)** | **0.37794 (37.79%)** | 20 項特徵均具累積致災貢獻，削減特徵會顯著降低解釋力 |
+| **Test RMSE** | **0.02008** | **0.04021** | 全特徵模型預測誤差降低 50.1% |
+| **Test MSE** | **0.0004032** | **0.0016169** | 殘差平方均值極小 |
+| **Test MAE** | **0.01579** | **0.03247** | 平均單樣本預測誤差小於 1.58% |
+| **95% 預測區間半寬 ($q_{95}$)** | **±0.04006** | **±0.07751** | 全特徵模型信心區間更窄、決策更精確 |
+| **95% 預測區間平均寬度** | **0.08012** | **0.15503** | 區間縮小 48.3% |
+| **95% 測試集實測覆蓋率** | **94.89%** | **94.99%** | **極致貼合理論 95.0% 覆蓋標準** |
+
+### 5. 視覺化診斷圖表 (產出於 `flood-prediction/outputs/`)
+* `actual_vs_predicted.png`：實際值 vs 預測值對數密度散佈圖（Hexbin Plot）。
+* `prediction_interval_95.png`：95% 保形預測區間曲線與實際點覆蓋圖。
+* `residual_diagnostics.png`：擬合值 vs 殘差散佈圖與殘差常態分佈長條圖。
+* `model_comparison.png`：20 特徵 vs RFE 10 特徵各項指標與權重對比長條圖。
+* `correlation_heatmap.png`：20 特徵兩兩與目標變數之 Pearson 相關係數熱力圖。
+
+---
+
+# 50 Startups Multiple Linear Regression (CRISP-DM)
 
 ![50 startup](50startup.png)
 

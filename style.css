@@ -1651,3 +1651,80 @@ body[data-theme="light"] .data-table th {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ==========================================================================
+   Project Hub Navigation Menu
+   ========================================================================== */
+.project-menu {
+  position: relative;
+}
+
+.project-menu-trigger {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.55rem 0.35rem;
+  cursor: pointer;
+}
+
+.project-menu-trigger:hover,
+.project-menu:focus-within .project-menu-trigger {
+  color: var(--text-main);
+}
+
+.project-menu-list {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 50;
+  width: 260px;
+  padding: 0.45rem;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-5px);
+  transition: 0.18s ease;
+}
+
+.project-menu:hover .project-menu-list,
+.project-menu:focus-within .project-menu-list {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.project-menu-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: 8px;
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+
+.project-menu-item:hover {
+  background: rgba(99, 102, 241, 0.14);
+}
+
+.project-menu-item b,
+.project-menu-item small {
+  display: block;
+}
+
+.project-menu-item b {
+  font-size: 0.82rem;
+}
+
+.project-menu-item small {
+  margin-top: 0.18rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}

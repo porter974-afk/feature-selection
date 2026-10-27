@@ -1,0 +1,142 @@
+{
+  "project": "Kaggle_Flood_Prediction_CRISP_DM",
+  "dataset_source": "Kaggle Playground Series s4e5",
+  "dataset_shape": {
+    "total_rows": 1117957,
+    "total_cols": 22,
+    "features_count": 20,
+    "target_column": "FloodProbability",
+    "excluded_columns": [
+      "id",
+      "FloodProbability"
+    ]
+  },
+  "full_ols": {
+    "features_count": 20,
+    "features": [
+      "MonsoonIntensity",
+      "TopographyDrainage",
+      "RiverManagement",
+      "Deforestation",
+      "Urbanization",
+      "ClimateChange",
+      "DamsQuality",
+      "Siltation",
+      "AgriculturalPractices",
+      "Encroachments",
+      "IneffectiveDisasterPreparedness",
+      "DrainageSystems",
+      "CoastalVulnerability",
+      "Landslides",
+      "Watersheds",
+      "DeterioratingInfrastructure",
+      "PopulationScore",
+      "WetlandLoss",
+      "InadequatePlanning",
+      "PoliticalFactors"
+    ],
+    "intercept": -0.05332622614275295,
+    "coefficients": {
+      "MonsoonIntensity": 0.005613007585060843,
+      "TopographyDrainage": 0.005645111619444327,
+      "RiverManagement": 0.0056624066674558805,
+      "Deforestation": 0.005681075400864847,
+      "Urbanization": 0.005659366330590906,
+      "ClimateChange": 0.0056587534943815,
+      "DamsQuality": 0.005652952067866613,
+      "Siltation": 0.005639752329880265,
+      "AgriculturalPractices": 0.0056393387611032774,
+      "Encroachments": 0.005645931046401857,
+      "IneffectiveDisasterPreparedness": 0.0056395297022512805,
+      "DrainageSystems": 0.005632642144875913,
+      "CoastalVulnerability": 0.005671065305432105,
+      "Landslides": 0.0056430842921231,
+      "Watersheds": 0.0056476911956355215,
+      "DeterioratingInfrastructure": 0.005618241001169033,
+      "PopulationScore": 0.005681486197355979,
+      "WetlandLoss": 0.0056395023807880845,
+      "InadequatePlanning": 0.0056120249988779285,
+      "PoliticalFactors": 0.0056455223132660225
+    },
+    "metrics": {
+      "name": "Full OLS (20 Features)",
+      "r2": 0.84488,
+      "rmse": 0.02008,
+      "mse": 0.0004032,
+      "mae": 0.01579,
+      "pi_half_width": 0.04006,
+      "pi_avg_width": 0.08012,
+      "pi_coverage_pct": 94.89
+    }
+  },
+  "rfe_10": {
+    "features_count": 10,
+    "selected_features": [
+      "MonsoonIntensity",
+      "TopographyDrainage",
+      "RiverManagement",
+      "Deforestation",
+      "DamsQuality",
+      "Siltation",
+      "Landslides",
+      "DeterioratingInfrastructure",
+      "PopulationScore",
+      "WetlandLoss"
+    ],
+    "feature_rankings": {
+      "MonsoonIntensity": 1,
+      "TopographyDrainage": 1,
+      "RiverManagement": 1,
+      "Deforestation": 1,
+      "Urbanization": 5,
+      "ClimateChange": 2,
+      "DamsQuality": 1,
+      "Siltation": 1,
+      "AgriculturalPractices": 3,
+      "Encroachments": 8,
+      "IneffectiveDisasterPreparedness": 9,
+      "DrainageSystems": 10,
+      "CoastalVulnerability": 7,
+      "Landslides": 1,
+      "Watersheds": 6,
+      "DeterioratingInfrastructure": 1,
+      "PopulationScore": 1,
+      "WetlandLoss": 1,
+      "InadequatePlanning": 11,
+      "PoliticalFactors": 4
+    },
+    "intercept": 0.25737336389039855,
+    "coefficients": {
+      "MonsoonIntensity": 0.005057245421039361,
+      "TopographyDrainage": 0.0049786367036403194,
+      "RiverManagement": 0.004993561002518395,
+      "Deforestation": 0.005003227812718964,
+      "DamsQuality": 0.004997144225445487,
+      "Siltation": 0.005032064593762754,
+      "Landslides": 0.004982488365547341,
+      "DeterioratingInfrastructure": 0.005030901938475355,
+      "PopulationScore": 0.005005787858766217,
+      "WetlandLoss": 0.004977165020276951
+    },
+    "metrics": {
+      "name": "RFE Selected (10 Features)",
+      "r2": 0.37794,
+      "rmse": 0.04021,
+      "mse": 0.0016169,
+      "mae": 0.03247,
+      "pi_half_width": 0.07751,
+      "pi_avg_width": 0.15503,
+      "pi_coverage_pct": 94.99
+    }
+  },
+  "conformal_prediction_95": {
+    "confidence_level": 0.95,
+    "calibration_samples": 178873,
+    "full_half_width": 0.04005816332009672,
+    "full_avg_width": 0.08011632664019344,
+    "full_coverage_pct": 94.89,
+    "rfe_half_width": 0.07751444139315661,
+    "rfe_avg_width": 0.15502888278631322,
+    "rfe_coverage_pct": 94.99
+  }
+}

@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FloodPulse AI｜Kaggle 洪災機率預測與特徵選取平台 (20 Features)</title>
+  <meta name="description" content="基於 Kaggle Playground Series s4e5 官方資料集，採用 CRISP-DM 流程、Scikit-Learn 多元線性迴歸、RFE 特徵淘汰與 95% 保形預測區間（Conformal Prediction）打造的洪災機率決策平台。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-content">
+      <span class="badge-pulse"></span>
+      <span><strong>Kaggle Flood Prediction 專案已就緒</strong> · 1,117,957 筆海量資料 · 20 項原始特徵 · Test R² = 84.49% · 95% 預測區間覆蓋率 94.89%</span>
+      <a href="#diagnostics-section" class="announcement-link">查看模型診斷與評估 →</a>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <header class="navbar" id="main-navbar">
+    <div class="nav-container">
+      <a class="brand-logo" href="#top">
+        <span class="logo-icon">🌊</span>
+        <span class="brand-text">
+          <span class="brand-name">FloodPulse<span class="brand-accent">.AI</span></span>
+          <span class="brand-sub">CRISP-DM ML Platform</span>
+        </span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#simulator-section" class="nav-link">洪災模擬器</a>
+        <a href="#crisp-section" class="nav-link">CRISP-DM</a>
+        <a href="#dataset-section" class="nav-link">百萬資料集</a>
+        <a href="#diagnostics-section" class="nav-link">模型診斷</a>
+        <div class="project-menu">
+          <button class="project-menu-trigger" type="button" aria-haspopup="true">專案切換 <span aria-hidden="true">⌄</span></button>
+          <div class="project-menu-list">
+            <a href="../ml-projects.html?project=flood" class="project-menu-item">
+              <span>🌊</span>
+              <span><b>Flood Prediction</b><small>Kaggle 20 特徵 · 洪災預測</small></span>
+            </a>
+            <a href="../ml-projects.html?project=boston" class="project-menu-item">
+              <span>🏠</span>
+              <span><b>Boston Housing</b><small>13 特徵 · 波士頓房價</small></span>
+            </a>
+            <a href="../ml-projects.html?project=startups" class="project-menu-item">
+              <span>🚀</span>
+              <span><b>50 Startups</b><small>新創獲利與支出歸因</small></span>
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      <button id="theme-toggle-btn" class="theme-toggle" aria-label="切換色彩主題">☼</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-glow hero-glow-1"></div>
+      <div class="hero-glow hero-glow-2"></div>
+      <div class="hero-container">
+        <div class="hero-badge">✦ Kaggle Playground Series s4e5 · 1,117,957 筆海量數據 · 20 項原始輸入特徵</div>
+        <h1 class="hero-title">以 20 項環境與水利特徵<br><span class="gradient-text">精準預測極端洪災風險</span></h1>
+        <p class="hero-subtitle">嚴格遵循 CRISP-DM 方法論，結合 Scikit-Learn 多元線性迴歸、RFE 特徵淘汰與 95% 保形預測區間（Conformal Prediction Interval），為國土防洪與防災規劃提供兼具高準確度與統計不確定性邊界的科學決策。</p>
+
+        <div class="metrics-grid">
+          <div class="metric-card glass-card">
+            <span class="metric-label">官方訓練樣本</span>
+            <strong class="metric-value">1,117,957</strong>
+            <span class="metric-desc">Kaggle 真實大數據</span>
+          </div>
+          <div class="metric-card glass-card highlight-metric">
+            <span class="metric-label">原始輸入特徵</span>
+            <strong class="metric-value">20</strong>
+            <span class="metric-desc">符合 HW2 (13 &lt; 特徵 &lt; 40)</span>
+          </div>
+          <div class="metric-card glass-card">
+            <span class="metric-label">Full OLS Test R²</span>
+            <strong class="metric-value">84.49%</strong>
+            <span class="metric-desc">RMSE: 0.02008 (MAE: 0.0158)</span>
+          </div>
+          <div class="metric-card glass-card">
+            <span class="metric-label">95% 預測區間覆蓋率</span>
+            <strong class="metric-value">94.89%</strong>
+            <span class="metric-desc">平均區間寬度: ± 4.01%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Simulator Section -->
+    <section class="section-container" id="simulator-section">
+      <div class="section-header">
+        <div class="section-tag">Phase 4 &amp; 6 · Modeling &amp; Deployment</div>
+        <h2 class="section-title">極端洪災風險即時模擬器</h2>
+        <p class="section-desc">即時調整各項環境、水文與政策變數，模型將於瀏覽器中快速計算洪災發生機率、95% 保形預測區間與各因子邊際風險貢獻。</p>
+      </div>
+
+      <div class="presets-bar">
+        <span class="preset-label">快速情境</span>
+        <button class="preset-btn" data-preset="highRisk">🚨 極端洪災警戒</button>
+        <button class="preset-btn" data-preset="monsoon">🌊 季風暴雨多發</button>
+        <button class="preset-btn" data-preset="wellProtected">🛡️ 完善防洪治理</button>
+        <button class="preset-btn active" data-preset="median">⚖️ 全國中位基準</button>
+      </div>
+
+      <div class="simulator-layout">
+        <!-- Controls Panel -->
+        <div class="controls-panel glass-card">
+          <h3 class="panel-title">20 項環境與防洪因子指標 <span class="model-badge">即時推論</span></h3>
+          <div id="controls"></div>
+          <div class="button-row">
+            <button id="btn-reset" class="btn btn-secondary">↺ 重設為中位基準</button>
+            <button id="btn-randomize" class="btn btn-secondary">✦ 隨機抽樣百萬資料</button>
+          </div>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="output-panel glass-card">
+          <div class="result-highlight-card">
+            <span class="result-badge">ML 預估洪災發生機率 (FloodProbability)</span>
+            <strong class="predicted-amount" id="predicted-prob-val">50.00%</strong>
+            <div class="prediction-stats-row">
+              <span class="sub-stat">
+                <span class="sub-label">使用模型</span>
+                <span class="sub-val text-cyan" id="model-type-label">Full OLS</span>
+              </span>
+              <span class="sub-stat">
+                <span class="sub-label">特徵規模</span>
+                <span class="sub-val" id="model-features-count">20 項</span>
+              </span>
+              <span class="sub-stat">
+                <span class="sub-label">95% 保形預測區間</span>
+                <span class="sub-val text-emerald" id="predicted-ci-val">[46.0% ~ 54.0%] (±4.01%)</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Model Switcher -->
+          <div class="model-architecture-bar">
+            <span class="model-arch-title">選擇模型架構</span>
+            <div class="model-arch-options">
+              <button class="model-arch-btn active" data-arch="full">
+                <span class="arch-btn-content">
+                  <b>Full OLS · 20 特徵</b>
+                  <small>Test R² = 84.49% · RMSE = 0.0201</small>
+                </span>
+                <span class="arch-badge badge-recommended">最佳推薦</span>
+              </button>
+              <button class="model-arch-btn" data-arch="optimal">
+                <span class="arch-btn-content">
+                  <b>RFE Optimal · 10 特徵</b>
+                  <small>Test R² = 37.79% · RMSE = 0.0402</small>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Linear Attribution -->
+          <div class="attribution-box">
+            <div class="attribution-title">關鍵因子風險貢獻 (Linear Attribution)</div>
+            <div class="attr-items" id="attr-items-container"></div>
+          </div>
+
+          <!-- Charts -->
+          <div class="chart-row">
+            <div class="chart-box">
+              <div class="chart-header-sm">主要因子邊際風險衝擊 (+%)</div>
+              <div class="canvas-container">
+                <canvas id="featureImpactChart"></canvas>
+              </div>
+            </div>
+            <div class="chart-box">
+              <div class="chart-header-sm">Full OLS (20) vs RFE (10) 預測對照</div>
+              <div class="canvas-container">
+                <canvas id="modelCompareChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CRISP-DM Section -->
+    <section class="section-container" id="crisp-section">
+      <div class="section-header">
+        <div class="section-tag">Methodology · CRISP-DM</div>
+        <h2 class="section-title">資料採礦標準流程（CRISP-DM）六階段分析</h2>
+        <p class="section-desc">從商業與水利防洪痛點出發，依循規範化生命週期完成資料清洗、模型構建與靜態發布。</p>
+      </div>
+      <div class="crisp-nav-pills" id="crisp-pills"></div>
+      <div class="crisp-content-display glass-card" id="crisp-card"></div>
+    </section>
+
+    <!-- Dataset Browser Section -->
+    <section class="section-container" id="dataset-section">
+      <div class="section-header">
+        <div class="section-tag">Dataset · 1,117,957 Samples</div>
+        <h2 class="section-title">Kaggle 百萬資料集抽樣瀏覽器</h2>
+        <p class="section-desc">點擊表格中任意一筆測試集真實紀錄，即可將各項指標帶入模擬器重新試算並驗證預測誤差。</p>
+      </div>
+
+      <div class="table-controls-bar glass-card">
+        <div class="search-box">
+          ⌕ <input id="dataset-search" class="search-input" placeholder="搜尋特徵值、季風強度或機率…">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label" for="risk-filter">風險等級</label>
+          <select id="risk-filter" class="styled-select">
+            <option value="all">所有樣本</option>
+            <option value="high">極高風險 (&gt; 58%)</option>
+            <option value="mid">中度警戒 (46% – 58%)</option>
+            <option value="low">低度受災 (&lt; 46%)</option>
+          </select>
+        </div>
+        <span class="table-summary-tag" id="table-record-count"></span>
+      </div>
+
+      <div class="table-responsive glass-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>季風強度</th>
+              <th>河川治理</th>
+              <th>森林砍伐</th>
+              <th>都市化</th>
+              <th>水庫品質</th>
+              <th>市區排水</th>
+              <th>土石流</th>
+              <th>實際機率</th>
+              <th>ML預測</th>
+              <th>殘差誤差</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Diagnostics Section -->
+    <section class="section-container" id="diagnostics-section">
+      <div class="section-header">
+        <div class="section-tag">Econometrics · Diagnostics &amp; Uncertainty</div>
+        <h2 class="section-title">模型診斷、殘差檢驗與 95% 保形預測區間證據</h2>
+        <p class="section-desc">嚴謹檢驗回歸假設、殘差常態性、RFE 篩選前後性能差異，並提供經獨立校準集驗證之 95% 統計信心區間。</p>
+      </div>
+
+      <div class="diagnostics-grid">
+        <article class="diag-card glass-card" style="grid-column: 1 / -1;">
+          <div class="diag-card-header">
+            <b class="diag-title">真實值 vs 模型預測值散佈圖 (Hexbin Density Scatter Plot)</b>
+            <span class="diag-tag">Test R² = 0.8449 · 高解釋力</span>
+          </div>
+          <div class="diag-img-wrapper">
+            <img src="outputs/actual_vs_predicted.png" class="zoomable-img" alt="實際值與預測值散佈圖">
+          </div>
+        </article>
+
+        <article class="diag-card glass-card" style="grid-column: 1 / -1;">
+          <div class="diag-card-header">
+            <b class="diag-title">95% 保形預測區間（Conformal Prediction Interval）</b>
+            <span class="diag-tag">實測覆蓋率 94.89% (目標 95%) · 寬度 ±0.0401</span>
+          </div>
+          <div class="diag-img-wrapper">
+            <img src="outputs/prediction_interval_95.png" class="zoomable-img" alt="95% 預測區間圖">
+          </div>
+        </article>
+
+        <article class="diag-card glass-card">
+          <div class="diag-card-header">
+            <b class="diag-title">殘差診斷 (Fitted vs Residuals &amp; Error Distribution)</b>
+          </div>
+          <div class="diag-img-wrapper">
+            <img src="outputs/residual_diagnostics.png" class="zoomable-img" alt="殘差診斷圖">
+          </div>
+        </article>
+
+        <article class="diag-card glass-card">
+          <div class="diag-card-header">
+            <b class="diag-title">模型性能與係數權重比較 (Full 20 vs RFE 10)</b>
+          </div>
+          <div class="diag-img-wrapper">
+            <img src="outputs/model_comparison.png" class="zoomable-img" alt="模型指標與係數比較圖">
+          </div>
+        </article>
+
+        <article class="diag-card glass-card" style="grid-column: 1 / -1;">
+          <div class="diag-card-header">
+            <b class="diag-title">20 項特徵與洪災機率 Pearson 相關係數矩陣 (Correlation Heatmap)</b>
+          </div>
+          <div class="diag-img-wrapper">
+            <img src="outputs/correlation_heatmap.png" class="zoomable-img" alt="相關係數熱力圖">
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div>
+        <b class="brand-name">FloodPulse<span class="brand-accent">.AI</span></b>
+        <p class="footer-text">Kaggle Playground Series s4e5 · CRISP-DM · Scikit-Learn · Chart.js · 95% Conformal Prediction</p>
+      </div>
+      <p class="footer-text">本專案供機器學習學術研究與課堂作業驗收展示使用。</p>
+    </div>
+    <div class="footer-bottom">© 2026 FloodPulse AI · ML Feature Selection Project</div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="model_config.js"></script>
+  <script src="dataset.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

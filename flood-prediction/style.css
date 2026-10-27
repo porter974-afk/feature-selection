@@ -1,0 +1,313 @@
+@import url('../style.css');
+
+/* Flood Prediction Theme Accents (Water/Ocean/Cyan Gradient) */
+:root {
+  --primary-flood: #06b6d4;
+  --primary-flood-glow: rgba(6, 182, 212, 0.25);
+  --accent-risk-high: #f43f5e;
+  --accent-risk-med: #f59e0b;
+  --accent-risk-low: #10b981;
+}
+
+.logo-icon {
+  display: grid;
+  place-items: center;
+  color: #38bdf8;
+}
+
+.brand-logo {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-name {
+  font-weight: 800;
+}
+
+.brand-accent {
+  color: #38bdf8;
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-value {
+  font-size: 2rem;
+}
+
+.model-badge {
+  font-size: .72rem;
+  padding: .25rem .55rem;
+  border-radius: 999px;
+  background: rgba(6, 182, 212, 0.16);
+  color: #67e8f9;
+}
+
+.controls-panel {
+  padding: 1.8rem;
+  max-height: 820px;
+  overflow-y: auto;
+}
+
+.controls-category-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #38bdf8;
+  margin: 1.2rem 0 0.8rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.controls-category-title:first-child {
+  margin-top: 0;
+}
+
+.control-group {
+  margin-bottom: 1rem;
+}
+
+.control-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.control-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+
+.control-desc-sub {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+.numeric-input {
+  width: 72px;
+  padding: .35rem .5rem;
+  border-radius: 7px;
+  border: 1px solid var(--border-card);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font: inherit;
+  font-weight: 600;
+  text-align: right;
+}
+
+.styled-slider {
+  width: 100%;
+  accent-color: #06b6d4;
+  margin: .5rem 0 .15rem;
+  cursor: pointer;
+}
+
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: .68rem;
+  color: var(--text-muted);
+}
+
+.btn {
+  cursor: pointer;
+}
+
+.btn-secondary {
+  padding: .55rem .8rem;
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-card);
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.button-row {
+  display: flex;
+  gap: .6rem;
+  margin-top: 1rem;
+}
+
+.text-cyan {
+  color: #38bdf8;
+}
+
+.text-emerald {
+  color: #34d399;
+}
+
+.text-rose {
+  color: #fb7185;
+}
+
+.text-amber {
+  color: #fbbf24;
+}
+
+.arch-btn-content small {
+  display: block;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: .2rem;
+}
+
+.attr-contrib.negative {
+  color: #34d399; /* Lower flood risk is positive for safety */
+}
+
+.attr-contrib.positive {
+  color: #fb7185; /* Higher flood risk */
+}
+
+.attr-item small {
+  color: var(--text-muted);
+  display: block;
+}
+
+.btn-table-action {
+  white-space: nowrap;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  border-radius: 6px;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  background: rgba(6, 182, 212, 0.15);
+  color: #67e8f9;
+  cursor: pointer;
+}
+
+.btn-table-action:hover {
+  background: rgba(6, 182, 212, 0.3);
+}
+
+.announcement-bar {
+  position: relative;
+}
+
+.project-menu {
+  position: relative;
+}
+
+.project-menu-trigger {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 600;
+  padding: .55rem .35rem;
+  cursor: pointer;
+}
+
+.project-menu-trigger:hover,
+.project-menu:focus-within .project-menu-trigger {
+  color: var(--text-main);
+}
+
+.project-menu-list {
+  position: absolute;
+  top: calc(100% + .5rem);
+  right: 0;
+  z-index: 30;
+  width: 260px;
+  padding: .45rem;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  box-shadow: 0 16px 38px rgba(0,0,0,.35);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-5px);
+  transition: .18s ease;
+}
+
+.project-menu:hover .project-menu-list,
+.project-menu:focus-within .project-menu-list {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.project-menu-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  padding: .7rem .75rem;
+  border-radius: 8px;
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+
+.project-menu-item:hover {
+  background: rgba(6, 182, 212, 0.15);
+}
+
+.project-menu-item b,
+.project-menu-item small {
+  display: block;
+}
+
+.project-menu-item b {
+  font-size: .82rem;
+}
+
+.project-menu-item small {
+  margin-top: .18rem;
+  color: var(--text-muted);
+  font-size: .7rem;
+}
+
+.risk-pill {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: 0.5rem;
+}
+
+.risk-pill.high {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.4);
+}
+
+.risk-pill.med {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.risk-pill.low {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+@media(max-width: 768px) {
+  .project-menu {
+    display: none;
+  }
+  .controls-panel {
+    max-height: 520px;
+  }
+}

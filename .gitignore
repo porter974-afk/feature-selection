@@ -18,3 +18,8 @@ ENV/
 *.swp
 .DS_Store
 Thumbs.db
+
+# Large Datasets
+datasets/
+train.csv/
+*.zip
